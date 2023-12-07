@@ -12,7 +12,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-      - uses: ngduc/vercel-deploy-action@master
+      - uses: amondnet/vercel-action@v20
         with:
           vercel-cli: vercel
           vercel-token: ${{ secrets.VERCEL_TOKEN }}
