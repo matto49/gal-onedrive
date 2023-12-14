@@ -34,7 +34,6 @@ export function encodePath(path: string): string {
  * @returns Access token for OneDrive API
  */
 export async function getAccessToken(): Promise<string> {
-  console.log('gettoken')
   const { accessToken, refreshToken } = await getOdAuthTokens()
 
   // Return in storage access token if it is still valid
@@ -159,6 +158,7 @@ export async function checkAuthRoute(
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   // If method is POST, then the API is called by the client to store acquired tokens
+  console.log('handle', req.method)
   if (req.method === 'POST') {
     const { obfuscatedAccessToken, accessTokenExpiry, obfuscatedRefreshToken } = req.body
     const accessToken = revealObfuscatedToken(obfuscatedAccessToken)

@@ -24,7 +24,7 @@
     "next-env.d.ts",
     "**/*.ts",
     "**/*.tsx"
-  ],
+, "src/components/customized/ui/Button"  ],
   "exclude": [
     "node_modules"
   ]

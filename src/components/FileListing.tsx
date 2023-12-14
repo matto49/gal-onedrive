@@ -39,6 +39,8 @@ import { PreviewContainer } from './previews/Containers'
 
 import FolderListLayout from './FolderListLayout'
 import FolderGridLayout from './FolderGridLayout'
+import { ReplyBox } from './customized/ReplyBox'
+import { ReplyZone } from './customized/ReplyZone'
 
 // Disabling SSR for some previews
 const EPUBPreview = dynamic(() => import('./previews/EPUBPreview'), {
@@ -147,6 +149,7 @@ export const Downloading: FC<{ title: string; style: string }> = ({ title, style
 }
 
 const FileListing: FC<{ query?: ParsedUrlQuery }> = ({ query }) => {
+  console.log('fileList')
   const [selected, setSelected] = useState<{ [key: string]: boolean }>({})
   const [totalSelected, setTotalSelected] = useState<0 | 1 | 2>(0)
   const [totalGenerating, setTotalGenerating] = useState<boolean>(false)
@@ -186,6 +189,8 @@ const FileListing: FC<{ query?: ParsedUrlQuery }> = ({ query }) => {
   }
 
   const responses: any[] = data ? [].concat(...data) : []
+
+  console.log(responses)
 
   const isLoadingInitialData = !data && !error
   const isLoadingMore = isLoadingInitialData || (size > 0 && data && typeof data[size - 1] === 'undefined')
@@ -385,6 +390,8 @@ const FileListing: FC<{ query?: ParsedUrlQuery }> = ({ query }) => {
             <MarkdownPreview file={readmeFile} path={path} standalone={false} />
           </div>
         )}
+
+        <ReplyZone />
       </>
     )
   }

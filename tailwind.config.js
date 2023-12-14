@@ -25,19 +25,23 @@ module.exports = {
     extend: {
       fontFamily: {
         sans: [`"${siteConfig.googleFontSans}"`, '"Noto Sans SC"', ...defaultTheme.fontFamily.sans],
-        mono: [`"${siteConfig.googleFontMono}"`, ...defaultTheme.fontFamily.mono]
+        mono: [`"${siteConfig.googleFontMono}"`, ...defaultTheme.fontFamily.mono],
       },
       colors: {
         gray: {
-          850: '#222226'
-        }
+          850: '#222226',
+        },
+        primary: 'rgb(86,189,248)',
+        'normal-text': '#333',
+        'dark-text': '#b4b4b4',
       },
       animation: {
         'spin-slow': 'spin 5s linear infinite',
-      }
-    }
+      },
+      padding: {
+        2.75: '0.6875rem',
+      },
+    },
   },
-  plugins: [
-    require('@tailwindcss/line-clamp'),
-  ],
+  plugins: [require('@tailwindcss/line-clamp')],
 }

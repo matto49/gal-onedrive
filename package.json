@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev",
+    "dev": "TAILWIND_MODE=watch next dev",
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
@@ -21,11 +21,13 @@
     "@vercel/analytics": "^1.0.1",
     "awesome-debounce-promise": "^2.1.0",
     "axios": "^1.2.6",
+    "clsx": "^2.0.0",
     "cors": "^2.8.5",
     "crypto-js": "^4.1.1",
     "csstype": "^3.1.1",
     "dayjs": "^1.11.7",
     "emoji-regex": "^10.2.1",
+    "framer-motion": "^10.16.16",
     "i18next": "^22.4.9",
     "ioredis": "^5.3.0",
     "jszip": "^3.10.1",
@@ -57,6 +59,7 @@
     "use-constant": "^1.1.1"
   },
   "devDependencies": {
+    "@svgr/webpack": "^8.1.0",
     "@types/cors": "^2.8.13",
     "@types/crypto-js": "^4.0.2",
     "@types/node": "18.16.18",
@@ -70,6 +73,7 @@
     "eslint-config-next": "13.4.6",
     "eslint-config-prettier": "^8.6.0",
     "i18next-parser": "^7.6.0",
+    "install": "^0.13.0",
     "postcss": "^8.4.21",
     "prettier": "^2.8.3",
     "prettier-plugin-tailwindcss": "^0.2.2",
