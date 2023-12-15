@@ -391,7 +391,7 @@ const FileListing: FC<{ query?: ParsedUrlQuery }> = ({ query }) => {
           </div>
         )}
 
-        <ReplyZone />
+        <ReplyZone path={path} />
       </>
     )
   }

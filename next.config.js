@@ -38,4 +38,12 @@ module.exports = {
       },
     ],
   },
+  rewrites() {
+    return [
+      {
+        source: '/onedrive/:path*',
+        destination: `${process.env.HOST}/onedrive/:path*`,
+      },
+    ]
+  },
 }

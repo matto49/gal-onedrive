@@ -2,11 +2,13 @@ import '@fortawesome/fontawesome-svg-core/styles.css'
 
 import '../styles/globals.css'
 import '../styles/markdown-github.css'
-import { Analytics } from '@vercel/analytics/react';
+import { Analytics } from '@vercel/analytics/react'
+import { App, ConfigProvider } from 'antd'
 
 // Require had to be used to prevent SSR failure in Next.js
 // Related discussion: https://github.com/FortAwesome/Font-Awesome/issues/19348
 const { library, config } = require('@fortawesome/fontawesome-svg-core')
+import { QueryClient, QueryClientProvider } from 'react-query'
 config.autoAddCss = false
 
 import {
@@ -121,12 +123,25 @@ library.add(
 )
 
 function MyApp({ Component, pageProps }: AppProps) {
+  const queryClient = new QueryClient({
+    defaultOptions: {
+      queries: {
+        staleTime: 10 * 1000,
+        cacheTime: 10 * 1000,
+        retry: 1,
+      },
+    },
+  })
   return (
-    <>
-      <NextNProgress height={1} color="rgb(156, 163, 175, 0.9)" options={{ showSpinner: false }} />
-      <Analytics />
-      <Component {...pageProps} />
-    </>
+    <ConfigProvider>
+      <App>
+        <QueryClientProvider client={queryClient}>
+          <NextNProgress height={1} color="rgb(156, 163, 175, 0.9)" options={{ showSpinner: false }} />
+          <Analytics />
+          <Component {...pageProps} />
+        </QueryClientProvider>
+      </App>
+    </ConfigProvider>
   )
 }
 export default appWithTranslation(MyApp)

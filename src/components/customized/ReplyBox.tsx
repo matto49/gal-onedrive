@@ -1,41 +1,37 @@
-import { FC, useMemo, useState } from 'react'
+import { FC, useContext, useMemo, useState } from 'react'
 import { Button } from './ui/Button'
 import { Input } from './ui/Input'
 import { setElementWrapper } from '../../utils/customized'
 import UserIcon from '../../static/customized/user.svg'
 import QQIcon from '../../static/customized/qq.svg'
-
-interface BoxContent {
-  text: string
-  userName: string
-  account: string
-}
+import { ReplyParams } from '../../utils/api/reply'
+import { submitContext } from './ReplyZone'
 
 interface ReplyBoxProps {
-  onSubmit: (content: BoxContent) => void
   handleCancel?: () => void
   replyTo?: string
 }
 
-export const ReplyBox: FC<ReplyBoxProps> = ({ onSubmit, replyTo, handleCancel }) => {
+export const ReplyBox: FC<ReplyBoxProps> = ({ replyTo = '', handleCancel }) => {
+  const onSubmit = useContext(submitContext).submit
   const [userName, setUserName] = useState('')
-  const [account, setAccount] = useState('')
+  const [qqAccount, setQQAccount] = useState('')
 
-  const [text, setText] = useState('')
+  const [content, setContent] = useState('')
   const disabled = useMemo(() => {
-    return !(userName && account && text)
-  }, [userName, account, text])
+    return !(userName && qqAccount && content)
+  }, [userName, qqAccount, content])
 
   function handleSubmit() {
     const data = {
       userName,
-      account,
-      text,
+      qqAccount,
+      content,
     }
 
-    localStorage.setItem('REPLY_INFO', JSON.stringify({ userName, account }))
+    localStorage.setItem('REPLY_INFO', JSON.stringify({ userName, qqAccount }))
 
-    onSubmit(data)
+    onSubmit(replyTo, data)
   }
 
   return (
@@ -51,18 +47,25 @@ export const ReplyBox: FC<ReplyBoxProps> = ({ onSubmit, replyTo, handleCancel })
         <Input
           prefixIcon={<QQIcon />}
           placeholder="群友的qq"
-          value={account}
-          onChange={setElementWrapper(setAccount)}
+          value={qqAccount}
+          onChange={setElementWrapper(setQQAccount)}
           name="account"
         />
       </div>
       <div className="mt-6">
-        <Input placeholder="输入一条友善的评论~" value={text} onChange={setElementWrapper(setText)} muti />
+        <Input placeholder="输入一条友善的评论~" value={content} onChange={setElementWrapper(setContent)} muti />
       </div>
       <div className="mt-4 flex justify-end gap-8">
-        <Button bg="transparent" className="border-2 border-red-400 text-red-400" type="submit" onClick={handleCancel}>
-          取消发送
-        </Button>
+          {replyTo && (
+            <Button
+              bg="transparent"
+              className="border-2 border-red-400 text-red-400"
+              type="submit"
+              onClick={handleCancel}
+            >
+              取消发送
+            </Button>
+          )}
         <Button disabled={disabled} type="submit" onClick={handleSubmit}>
           发送
         </Button>
