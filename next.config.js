@@ -36,6 +36,12 @@ module.exports = {
         port: '',
         pathname: '/favicon/**',
       },
+      {
+        protocol: 'https',
+        hostname: 's3.bmp.ovh',
+        port: '',
+        pathname: '/imgs/**',
+      },
     ],
   },
   rewrites() {

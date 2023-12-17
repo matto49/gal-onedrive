@@ -39,8 +39,8 @@ import { PreviewContainer } from './previews/Containers'
 
 import FolderListLayout from './FolderListLayout'
 import FolderGridLayout from './FolderGridLayout'
-import { ReplyBox } from './customized/ReplyBox'
 import { ReplyZone } from './customized/ReplyZone'
+import { UploadZone } from './customized/UploadZone'
 
 // Disabling SSR for some previews
 const EPUBPreview = dynamic(() => import('./previews/EPUBPreview'), {
@@ -53,7 +53,7 @@ const EPUBPreview = dynamic(() => import('./previews/EPUBPreview'), {
  * @param query Url query property
  * @returns Path string
  */
-const queryToPath = (query?: ParsedUrlQuery) => {
+export const queryToPath = (query?: ParsedUrlQuery) => {
   if (query) {
     const { path } = query
     if (!path) return '/'
@@ -149,7 +149,6 @@ export const Downloading: FC<{ title: string; style: string }> = ({ title, style
 }
 
 const FileListing: FC<{ query?: ParsedUrlQuery }> = ({ query }) => {
-  console.log('fileList')
   const [selected, setSelected] = useState<{ [key: string]: boolean }>({})
   const [totalSelected, setTotalSelected] = useState<0 | 1 | 2>(0)
   const [totalGenerating, setTotalGenerating] = useState<boolean>(false)
@@ -392,6 +391,7 @@ const FileListing: FC<{ query?: ParsedUrlQuery }> = ({ query }) => {
         )}
 
         <ReplyZone path={path} />
+        <UploadZone />
       </>
     )
   }

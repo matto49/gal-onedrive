@@ -1,4 +1,5 @@
-import {
+import clsx from 'clsx'
+import React, {
   HTMLAttributes,
   InputHTMLAttributes,
   TextareaHTMLAttributes,
@@ -20,7 +21,7 @@ type IInputProps = InputProps & InputHTMLAttributes<HTMLInputElement> & Textarea
 
 export const Input = memo(
   forwardRef<HTMLInputElement | HTMLTextAreaElement, IInputProps>((props, ref) => {
-    const { muti, wrappedProps, prefix, onChange, value, ...rest } = props
+    const { muti, wrappedProps, prefixIcon, onChange, value, ...rest } = props
 
     const [focus, setFocus] = useState(false)
 
@@ -49,11 +50,14 @@ export const Input = memo(
 
     return (
       <span
-        className="relative inline-flex w-full items-center  border border-gray-300 py-2.75 px-3 text-normal-text hover:border-primary dark:border-gray-600 dark:text-dark-text"
         {...wrappedProps}
+        className={clsx([
+          'relative inline-flex w-full items-center  border border-gray-300 py-2.75 px-3 text-normal-text hover:border-primary dark:border-gray-600 dark:text-dark-text',
+          wrappedProps?.className,
+        ])}
         ref={inputWrappedRef}
       >
-        {prefix && <div className="relative mr-1 inline-block">{prefix}</div>}
+        {prefixIcon && <div className="relative mr-1 inline-block">{prefixIcon}</div>}
         <div className="pointer-events-none absolute left-0 top-0">
           <svg className="h-1 w-1 overflow-visible">
             <rect
@@ -77,8 +81,8 @@ export const Input = memo(
             onChange={onChange}
             onFocus={() => setFocus(true)}
             onBlur={() => setFocus(false)}
-            className="block w-full border-0 bg-transparent outline-none"
             {...rest}
+            className={clsx(['block w-full border-0 bg-transparent outline-none', rest.className])}
           />
         ) : (
           <input
@@ -87,8 +91,8 @@ export const Input = memo(
             onChange={onChange}
             onFocus={() => setFocus(true)}
             onBlur={() => setFocus(false)}
-            className="block w-full border-0 bg-transparent outline-none"
             {...rest}
+            className={clsx(['block w-full border-0 bg-transparent outline-none', rest.className])}
           />
         )}
       </span>

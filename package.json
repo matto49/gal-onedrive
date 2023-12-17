@@ -18,6 +18,7 @@
     "@fortawesome/free-solid-svg-icons": "^6.2.1",
     "@fortawesome/react-fontawesome": "^0.2.0",
     "@headlessui/react": "^1.7.8",
+    "@microsoft/microsoft-graph-client": "^3.0.7",
     "@tailwindcss/line-clamp": "^0.4.4",
     "@vercel/analytics": "^1.0.1",
     "antd": "^5.12.2",
@@ -60,9 +61,12 @@
     "remark-math": "^5.1.1",
     "swr": "^2.0.3",
     "use-clipboard-copy": "^0.2.0",
-    "use-constant": "^1.1.1"
+    "use-constant": "^1.1.1",
+    "use-immer": "^0.9.0",
+    "zustand": "^4.4.7"
   },
   "devDependencies": {
+    "@microsoft/microsoft-graph-types": "^2.40.0",
     "@svgr/webpack": "^8.1.0",
     "@types/cors": "^2.8.13",
     "@types/crypto-js": "^4.0.2",

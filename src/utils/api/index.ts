@@ -9,3 +9,11 @@ export const request = axios.create({
 })
 
 request.interceptors.response.use(res => res.data)
+
+export const onedriveRequest = axios.create({
+  baseURL: '/onedrive/onedriveApi',
+  timeout: 10000,
+  headers: {
+    'Content-Type': 'application/json',
+  },
+})

@@ -4,7 +4,6 @@ import { Input } from './ui/Input'
 import { setElementWrapper } from '../../utils/customized'
 import UserIcon from '../../static/customized/user.svg'
 import QQIcon from '../../static/customized/qq.svg'
-import { ReplyParams } from '../../utils/api/reply'
 import { submitContext } from './ReplyZone'
 
 interface ReplyBoxProps {
@@ -12,7 +11,7 @@ interface ReplyBoxProps {
   replyTo?: string
 }
 
-export const ReplyBox: FC<ReplyBoxProps> = ({ replyTo = '', handleCancel }) => {
+export const ReplyBox: FC<ReplyBoxProps> = ({ replyTo = '', handleCancel, isUpload }) => {
   const onSubmit = useContext(submitContext).submit
   const [userName, setUserName] = useState('')
   const [qqAccount, setQQAccount] = useState('')
@@ -53,19 +52,17 @@ export const ReplyBox: FC<ReplyBoxProps> = ({ replyTo = '', handleCancel }) => {
         />
       </div>
       <div className="mt-6">
-        <Input placeholder="输入一条友善的评论~" value={content} onChange={setElementWrapper(setContent)} muti />
+        <Input
+          placeholder={isUpload ? '为本次上传做一点见要说明吧(不填则默认是昵称-日期的形式)' : '输入一条友善的评论~'}
+          value={content}
+          onChange={setElementWrapper(setContent)}
+          muti
+        />
       </div>
       <div className="mt-4 flex justify-end gap-8">
-          {replyTo && (
-            <Button
-              bg="transparent"
-              className="border-2 border-red-400 text-red-400"
-              type="submit"
-              onClick={handleCancel}
-            >
-              取消发送
-            </Button>
-          )}
+        <Button bg="transparent" className="border-2 border-red-400 text-red-400" type="submit" onClick={handleCancel}>
+          取消发送
+        </Button>
         <Button disabled={disabled} type="submit" onClick={handleSubmit}>
           发送
         </Button>

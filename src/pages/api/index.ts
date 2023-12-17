@@ -69,7 +69,7 @@ export async function getAccessToken(): Promise<string> {
       accessTokenExpiry: parseInt(expires_in),
       refreshToken: refresh_token,
     })
-    console.log('Fetch new access token with stored refresh token.')
+
     return access_token
   }
 
@@ -229,6 +229,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
   // Go for file raw download link, add CORS headers, and redirect to @microsoft.graph.downloadUrl
   // (kept here for backwards compatibility, and cache headers will be reverted to no-cache)
+  console.log('requestUrl', requestUrl)
   if (raw) {
     await runCorsMiddleware(req, res)
     res.setHeader('Cache-Control', 'no-cache')
