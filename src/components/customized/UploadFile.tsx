@@ -3,7 +3,7 @@ import { UploadRef } from 'antd/es/upload/Upload'
 import { useMemo, useRef, useState } from 'react'
 import { Button } from './ui/Button'
 import axios from 'axios'
-import { createUploadSession } from '../../utils/api/onedrive'
+import { createUploadSession, uploadSuccess } from '../../utils/api/onedrive'
 import Image from 'next/image'
 import RubbishIcon from '../../static/customized/rubbish.svg'
 import UserIcon from '../../static/customized/user.svg'
@@ -39,11 +39,26 @@ export const UploadFile = () => {
       message.error('还没有选择任何文件哦')
     } else {
       updateUploadFilesProgress(list.map(file => ({ size: file.size || 0, progress: 0, percent: 0 })))
-      list.forEach(({ originFileObj }, idx) => {
+      const handles = list.map(({ originFileObj }, idx) => {
         if (originFileObj) {
-          uploadFileByChunk(idx, originFileObj)
+          return uploadFileByChunk(idx, originFileObj)
         }
       })
+      Promise.all(handles)
+        .then(async () => {
+          await uploadSuccess({
+            userName,
+            qqAccount,
+            path: curPath + prefixDir,
+            content,
+            createTime: Date().toString(),
+            fileList: list.map((file: any) => file.name),
+          })
+          message.success('上传成功')
+        })
+        .catch(err => {
+          message.error('上传失败')
+        })
     }
   }
 
@@ -54,21 +69,26 @@ export const UploadFile = () => {
     let cur = 0
 
     const uploadUri = await createUploadSession(`${curPath + prefixDir}/${file.name}`)
-    while (cur < file.size) {
-      const slice = file.slice(cur, cur + size)
-      await axios.put(uploadUri, slice, {
-        headers: {
-          'Content-Range': `bytes ${cur}-${Math.min(cur + size - 1, fileSize - 1)}/${fileSize}`,
-        },
-        onUploadProgress(data) {
-          const uploadSize = cur + data.loaded
-          updateUploadFilesProgress(uploadFilesProgress => {
-            uploadFilesProgress[fileIdx].progress = uploadSize
-            uploadFilesProgress[fileIdx].percent = Number(((uploadSize / fileSize) * 100).toFixed(1))
-          })
-        },
-      })
-      cur += size
+    try {
+      while (cur < file.size) {
+        const slice = file.slice(cur, cur + size)
+        await axios.put(uploadUri, slice, {
+          headers: {
+            'Content-Range': `bytes ${cur}-${Math.min(cur + size - 1, fileSize - 1)}/${fileSize}`,
+          },
+          onUploadProgress(data) {
+            const uploadSize = cur + data.loaded
+            updateUploadFilesProgress(uploadFilesProgress => {
+              uploadFilesProgress[fileIdx].progress = uploadSize
+              uploadFilesProgress[fileIdx].percent = Number(((uploadSize / fileSize) * 100).toFixed(1))
+            })
+          },
+        })
+        cur += size
+      }
+    } catch (err) {
+      message.error(`文件${file.name}上传失败`)
+      throw err
     }
 
     return fileChunkList
@@ -77,10 +97,11 @@ export const UploadFile = () => {
   const props: UploadProps = {
     name: 'file',
     multiple: true,
+    onRemove(file) {},
     onChange(info) {
       const { status } = info.file
-
-      const uploadOver = status === 'done' && info.fileList.every(file => file.status === 'done')
+      console.log(info)
+      const uploadOver = info.fileList.every(file => file.status === 'done')
       if (uploadOver) {
         message.success('文件加载完成')
         setCanUploading(true)
@@ -110,10 +131,10 @@ export const UploadFile = () => {
       const conicColors = { '0%': '#87d068', '50%': '#ffe58f', '100%': '#ffccc7' }
 
       return (
-        <div className="flex items-center gap-5 dark:text-gray-400">
+        <div className="mt-3 flex items-center gap-5 dark:text-gray-400">
           <span>{file.name}</span>
-          <Button>
-            <RubbishIcon onClick={actions.remove} className="h-4 w-4 cursor-pointer hover:text-primary" />
+          <Button onClick={actions.remove}>
+            <RubbishIcon className="h-4 w-4 cursor-pointer hover:text-primary" />
           </Button>
           {fileProgress && (
             <div className="flex items-center gap-6">
@@ -191,7 +212,7 @@ export const UploadFile = () => {
       <div className="flex justify-end">
         <Button
           disabled={!canUpload || disabled}
-          className="mt-2 border-2 border-primary text-primary disabled:border-none disabled:text-gray-400"
+          className="mt-2 border-2 border-primary disabled:border-none disabled:text-gray-400"
           onClick={handleUpload}
         >
           上传至服务器

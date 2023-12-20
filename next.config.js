@@ -40,7 +40,7 @@ module.exports = {
         protocol: 'https',
         hostname: 's3.bmp.ovh',
         port: '',
-        pathname: '/imgs/**',
+        pathname: '/imgs/**',   
       },
     ],
   },
@@ -48,7 +48,7 @@ module.exports = {
     return [
       {
         source: '/onedrive/:path*',
-        destination: `${process.env.HOST}/onedrive/:path*`,
+        destination: `${process.env.HOST}/:path*`,
       },
     ]
   },
