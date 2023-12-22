@@ -35,11 +35,6 @@ export const getReply = (pageUrl: string, page = 1, size = 20): Promise<ListInfo
 }
 
 export const addReply = (pageUrl: string, replyTo: string, reply: ReplyParams): Promise<string> => {
-  console.log({
-    pageUrl,
-    replyTo,
-    reply,
-  })
   return request.post('/add', {
     pageUrl,
     replyTo,

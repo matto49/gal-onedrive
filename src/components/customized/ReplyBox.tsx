@@ -1,17 +1,19 @@
-import { FC, useContext, useMemo, useState } from 'react'
+import { FC, useContext, useEffect, useMemo, useState } from 'react'
 import { Button } from './ui/Button'
 import { Input } from './ui/Input'
-import { setElementWrapper } from '../../utils/customized'
+import { LOCAL_STORAGE_USER_INFO, setElementWrapper } from '../../utils/customized'
 import UserIcon from '../../static/customized/user.svg'
 import QQIcon from '../../static/customized/qq.svg'
 import { submitContext } from './ReplyZone'
+import { App } from 'antd'
 
 interface ReplyBoxProps {
   handleCancel?: () => void
   replyTo?: string
 }
 
-export const ReplyBox: FC<ReplyBoxProps> = ({ replyTo = '', handleCancel, isUpload }) => {
+export const ReplyBox: FC<ReplyBoxProps> = ({ replyTo = '', handleCancel }) => {
+  const { message } = App.useApp()
   const onSubmit = useContext(submitContext).submit
   const [userName, setUserName] = useState('')
   const [qqAccount, setQQAccount] = useState('')
@@ -22,16 +24,31 @@ export const ReplyBox: FC<ReplyBoxProps> = ({ replyTo = '', handleCancel, isUplo
   }, [userName, qqAccount, content])
 
   function handleSubmit() {
+    const isQqNumberCheck = /^[1-9]{1}[0-9]{4,14}$/
+    if (!isQqNumberCheck.test(qqAccount)) {
+      message.error('请输入正确的qq号！')
+      return
+    }
+
     const data = {
       userName,
       qqAccount,
       content,
     }
 
-    localStorage.setItem('REPLY_INFO', JSON.stringify({ userName, qqAccount }))
+    localStorage.setItem(LOCAL_STORAGE_USER_INFO, JSON.stringify({ userName, qqAccount }))
 
     onSubmit(replyTo, data)
   }
+
+  useEffect(() => {
+    const storageInfo = localStorage.getItem(LOCAL_STORAGE_USER_INFO)
+    if (storageInfo) {
+      const { userName, qqAccount } = JSON.parse(storageInfo)
+      setUserName(userName)
+      setQQAccount(qqAccount)
+    }
+  }, [])
 
   return (
     <div>
@@ -52,12 +69,7 @@ export const ReplyBox: FC<ReplyBoxProps> = ({ replyTo = '', handleCancel, isUplo
         />
       </div>
       <div className="mt-6">
-        <Input
-          placeholder={isUpload ? '为本次上传做一点见要说明吧(不填则默认是昵称-日期的形式)' : '输入一条友善的评论~'}
-          value={content}
-          onChange={setElementWrapper(setContent)}
-          muti
-        />
+        <Input placeholder={'输入一条友善的评论~'} value={content} onChange={setElementWrapper(setContent)} muti />
       </div>
       <div className="mt-4 flex justify-end gap-8">
         <Button bg="transparent" className="border-2 border-red-400 text-red-400" type="submit" onClick={handleCancel}>

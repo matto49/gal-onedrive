@@ -5,7 +5,7 @@ import { FC, useEffect } from 'react'
 import { ReplyParams, addReply, getReply } from '../../utils/api/reply'
 import { useMutation, useQuery, useQueryClient } from 'react-query'
 import Loading from '../Loading'
-import { App, message } from 'antd'
+import { App } from 'antd'
 import { createContext } from 'react'
 
 interface ISubmitContext {

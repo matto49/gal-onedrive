@@ -27,7 +27,7 @@ export const ReplyItem: FC<ReplyProps> = ({ data }) => {
           width={48}
           height={48}
           alt="avatar"
-          src={data.avatar || 'https://shiraha.cn/favicon/me/2023.jpg'}
+          src={data.avatar || `https://q1.qlogo.cn/g?b=qq&nk=${data.qqAccount}&s=100`}
         />
       </div>
       <div className="flex-1 pl-3">

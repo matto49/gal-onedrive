@@ -1,10 +1,13 @@
 import { onedriveRequest } from '.'
+import { ListData } from '../typescript'
 
 export enum Status {
   Pending = 'pending',
   Approved = 'approved',
   Rejected = 'rejected',
 }
+
+export type checkStatus = 'approved' | 'failed'
 
 interface UploadSuccessDto {
   userName: string
@@ -13,31 +16,44 @@ interface UploadSuccessDto {
   content: string
   fileList: string[]
   createTime: string
-  isApproved: boolean
-  status: Status
+  status?: Status
+}
+
+export interface FileInfo {
+  id: number
+  belongTo: number
+  path: string
 }
 
 export type UploadList = Omit<UploadSuccessDto, 'fileList'> & {
-  fileList: {
-    id: number
-    belongTo: number
-    path: string
-  }[]
+  fileList: FileInfo[]
+  id: number
 }
 
-export const createUploadSession = async (path: string): Promise<string> => {
-  return (await onedriveRequest.post('/createUploadSession', { path })).data.uploadUrl
+export const createUploadSession = async (path: string, userName: string): Promise<string> => {
+  return (await onedriveRequest.post('/createUploadSession', { path, userName })).data.uploadUrl
 }
 
 export const uploadSuccess = async (data: UploadSuccessDto) => {
   return await onedriveRequest.post('/uploadSuccess', data)
 }
 
-export const getUploadList = async (page?: number, size?: number): Promise<UploadList[]> => {
-  return await onedriveRequest.get('/getUploadList', {
-    params: {
-      page,
-      size,
-    },
-  })
+export const getUploadList = async (page?: number, size?: number): Promise<ListData<UploadList>> => {
+  return (
+    await onedriveRequest.get('/getUploadList', {
+      params: {
+        page,
+        size,
+      },
+    })
+  ).data
+}
+
+export const checkUploadList = async (id: number, status: checkStatus) => {
+  return (
+    await onedriveRequest.post('/checkUploadList', {
+      id,
+      status,
+    })
+  ).data
 }

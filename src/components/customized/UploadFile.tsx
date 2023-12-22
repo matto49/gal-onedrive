@@ -1,6 +1,6 @@
 import { App, UploadProps, Upload, Progress } from 'antd'
 import { UploadRef } from 'antd/es/upload/Upload'
-import { useMemo, useRef, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { Button } from './ui/Button'
 import axios from 'axios'
 import { createUploadSession, uploadSuccess } from '../../utils/api/onedrive'
@@ -10,7 +10,7 @@ import UserIcon from '../../static/customized/user.svg'
 import QQIcon from '../../static/customized/qq.svg'
 import { useImmer } from 'use-immer'
 import { Input } from './ui/Input'
-import { setElementWrapper } from '../../utils/customized'
+import { LOCAL_STORAGE_USER_INFO, setElementWrapper } from '../../utils/customized'
 import { useRouter } from 'next/router'
 import { queryToPath } from '../FileListing'
 
@@ -18,6 +18,8 @@ interface UploadFileProgress {
   size: number
   progress: number
   percent: number
+  url: string
+  status: 'preparing' | 'uploading' | 'done' | 'stopped' | 'error'
 }
 
 const { Dragger } = Upload
@@ -38,7 +40,9 @@ export const UploadFile = () => {
     if (!list || !list.length) {
       message.error('还没有选择任何文件哦')
     } else {
-      updateUploadFilesProgress(list.map(file => ({ size: file.size || 0, progress: 0, percent: 0 })))
+      updateUploadFilesProgress(
+        list.map(file => ({ size: file.size || 0, progress: 0, percent: 0, url: '', status: 'preparing' }))
+      )
       const handles = list.map(({ originFileObj }, idx) => {
         if (originFileObj) {
           return uploadFileByChunk(idx, originFileObj)
@@ -55,6 +59,7 @@ export const UploadFile = () => {
             fileList: list.map((file: any) => file.name),
           })
           message.success('上传成功')
+          localStorage.setItem(LOCAL_STORAGE_USER_INFO, JSON.stringify({ userName, qqAccount }))
         })
         .catch(err => {
           message.error('上传失败')
@@ -63,12 +68,18 @@ export const UploadFile = () => {
   }
 
   //生成文件切片
-  async function uploadFileByChunk(fileIdx: number, file: File, size = 100 * 1024 * 1024) {
+  async function uploadFileByChunk(fileIdx: number, file: File, size = 300 * 1024 * 1024) {
     const fileChunkList: any[] = []
     const fileSize = file.size
     let cur = 0
 
-    const uploadUri = await createUploadSession(`${curPath + prefixDir}/${file.name}`)
+    const uploadUri = await createUploadSession(`${curPath + prefixDir}/${file.name}`, userName)
+
+    // 设置url供取消上传用
+    updateUploadFilesProgress(uploadFilesProgress => {
+      uploadFilesProgress[fileIdx].url = uploadUri
+    })
+
     try {
       while (cur < file.size) {
         const slice = file.slice(cur, cur + size)
@@ -81,12 +92,19 @@ export const UploadFile = () => {
             updateUploadFilesProgress(uploadFilesProgress => {
               uploadFilesProgress[fileIdx].progress = uploadSize
               uploadFilesProgress[fileIdx].percent = Number(((uploadSize / fileSize) * 100).toFixed(1))
+              uploadFilesProgress[fileIdx].status = 'uploading'
             })
           },
         })
         cur += size
       }
+      updateUploadFilesProgress(uploadFilesProgress => {
+        uploadFilesProgress[fileIdx].status = 'done'
+      })
     } catch (err) {
+      updateUploadFilesProgress(uploadFilesProgress => {
+        uploadFilesProgress[fileIdx].status = 'error'
+      })
       message.error(`文件${file.name}上传失败`)
       throw err
     }
@@ -99,8 +117,8 @@ export const UploadFile = () => {
     multiple: true,
     onRemove(file) {},
     onChange(info) {
-      const { status } = info.file
-      console.log(info)
+      const { status, uid } = info.file
+
       const uploadOver = info.fileList.every(file => file.status === 'done')
       if (uploadOver) {
         message.success('文件加载完成')
@@ -130,6 +148,19 @@ export const UploadFile = () => {
 
       const conicColors = { '0%': '#87d068', '50%': '#ffe58f', '100%': '#ffccc7' }
 
+      // 有问题，请求后并没有实现暂停效果，感觉还得处理一下发出去的put请求
+      // async function handleCancelUpload() {
+      //   if (fileProgress.url) {
+      //     updateUploadFilesProgress(uploadFilesProgress => {
+      //       uploadFilesProgress[fileIdx].status = 'stopped'
+      //     })
+      //     await axios.delete(fileProgress.url)
+      //     message.success('取消文件上传成功')
+      //   }
+      // }
+
+      // todo:恢复上传
+
       return (
         <div className="mt-3 flex items-center gap-5 dark:text-gray-400">
           <span>{file.name}</span>
@@ -144,6 +175,15 @@ export const UploadFile = () => {
               <div className="text-sm">
                 {handleSize(fileProgress.progress)}/{handleSize(fileProgress.size)}
               </div>
+              {/* toFix: 暂停上传功能 */}
+              {/* <Button
+                disabled={fileProgress.status !== 'uploading'}
+                onClick={() => {
+                  handleCancelUpload()
+                }}
+              >
+                取消上传
+              </Button> */}
             </div>
           )}
         </div>
@@ -155,9 +195,18 @@ export const UploadFile = () => {
   const [qqAccount, setQQAccount] = useState('')
   const [prefixDir, setPrefixDir] = useState('')
 
+  useEffect(() => {
+    const storageInfo = localStorage.getItem(LOCAL_STORAGE_USER_INFO)
+    if (storageInfo) {
+      const { userName, qqAccount } = JSON.parse(storageInfo)
+      setUserName(userName)
+      setQQAccount(qqAccount)
+    }
+  }, [])
+
   const [content, setContent] = useState('')
   const disabled = useMemo(() => {
-    return !(userName && qqAccount && !content)
+    return !(userName && qqAccount)
   }, [userName, qqAccount, content])
 
   return (
