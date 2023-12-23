@@ -22,6 +22,7 @@ export const UploadZone = () => {
             <Link target="_blank" href="https://doc.aoikaze.org/blog/oneindex/archive_format">
               压缩要求
             </Link>
+            和
             <Link target="_blank" href="https://doc.aoikaze.org/blog/oneindex/upload_format`">
               上传要求
             </Link>
