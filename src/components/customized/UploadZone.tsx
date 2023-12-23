@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { Button } from './ui/Button'
-import { UploadFile } from './UploadFile'
+import { UploadFiles } from './UploadFile'
 import Link from 'next/link'
 
 export const UploadZone = () => {
@@ -27,7 +27,7 @@ export const UploadZone = () => {
             </Link>
             哦~
           </div>
-          <UploadFile />
+          <UploadFiles />
         </>
       )}
     </>

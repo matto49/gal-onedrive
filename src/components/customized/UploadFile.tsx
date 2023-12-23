@@ -1,4 +1,4 @@
-import { App, UploadProps, Upload, Progress } from 'antd'
+import { App, UploadProps, Upload, Progress, UploadFile } from 'antd'
 import { UploadRef } from 'antd/es/upload/Upload'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { Button } from './ui/Button'
@@ -13,6 +13,7 @@ import { Input } from './ui/Input'
 import { LOCAL_STORAGE_USER_INFO, setElementWrapper } from '../../utils/customized'
 import { useRouter } from 'next/router'
 import { queryToPath } from '../FileListing'
+import { flushSync } from 'react-dom'
 
 interface UploadFileProgress {
   size: number
@@ -23,11 +24,9 @@ interface UploadFileProgress {
 }
 
 const { Dragger } = Upload
-export const UploadFile = () => {
+export const UploadFiles = () => {
   const { query } = useRouter()
   const curPath = queryToPath(query)
-  // 本地上传结束后可以上传
-  const [canUpload, setCanUploading] = useState(false)
 
   // 服务器上传信息
   const [uploadFilesProgress, updateUploadFilesProgress] = useImmer<UploadFileProgress[]>([])
@@ -112,36 +111,42 @@ export const UploadFile = () => {
     return fileChunkList
   }
 
+  // 本地上传结束后可以上传
+  // 这一块理解有误
+  const [canUpload, setCanUploading] = useState(true)
   const [preFileCnt, setPreFileCnt] = useState(0)
 
+  const [fileList, setFileList] = useState<UploadFile[]>([])
   const props: UploadProps = {
     name: 'file',
     multiple: true,
     onRemove(file) {
-      updateUploadFilesProgress([])
+      flushSync(() => setFileList([...fileList, file]))
     },
+    beforeUpload: file => {
+      console.log(file)
+      setFileList(preList => [...preList, file])
 
+      return false
+    },
     onChange(info) {
-      const { status, uid } = info.file
-      const isRemoveFile = info.fileList.length < preFileCnt
-
-      const uploadOver = info.fileList.every(file => file.status === 'done')
-      if (uploadOver) {
-        if (isRemoveFile) return
-        message.success('文件加载完成')
-        setCanUploading(true)
-      } else if (canUpload === true) {
-        setCanUploading(false)
-      }
-
-      if (status === 'error') {
-        message.error(`${info.file.name} file upload failed.`)
-      }
-
-      setPreFileCnt(info.fileList.length)
+      // const { status, uid } = info.file
+      // const isRemoveFile = info.fileList.length < preFileCnt
+      // const uploadOver = info.fileList.every(file => file.status === 'done')
+      // if (uploadOver) {
+      //   if (isRemoveFile) return
+      //   message.success('文件加载完成')
+      //   setCanUploading(true)
+      // } else if (canUpload === true) {
+      //   setCanUploading(false)
+      // }
+      // if (status === 'error') {
+      //   message.error(`${info.file.name} file upload failed.`)
+      // }
+      // setPreFileCnt(info.fileList.length)
     },
 
-    itemRender(originNode, file, fileList, actions) {
+    itemRender(originNode, file, list, actions) {
       const fileIdx = fileList.findIndex(item => item.uid === file.uid)
       const fileProgress = uploadFilesProgress[fileIdx]
 
