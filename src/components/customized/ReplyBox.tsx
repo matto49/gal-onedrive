@@ -72,9 +72,16 @@ export const ReplyBox: FC<ReplyBoxProps> = ({ replyTo = '', handleCancel }) => {
         <Input placeholder={'输入一条友善的评论~'} value={content} onChange={setElementWrapper(setContent)} muti />
       </div>
       <div className="mt-4 flex justify-end gap-8">
-        <Button bg="transparent" className="border-2 border-red-400 text-red-400" type="submit" onClick={handleCancel}>
-          取消发送
-        </Button>
+        {replyTo !== '' && (
+          <Button
+            bg="transparent"
+            className="border-2 border-red-400 text-red-400"
+            type="submit"
+            onClick={handleCancel}
+          >
+            取消发送
+          </Button>
+        )}
         <Button disabled={disabled} type="submit" onClick={handleSubmit}>
           发送
         </Button>

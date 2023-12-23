@@ -112,15 +112,22 @@ export const UploadFile = () => {
     return fileChunkList
   }
 
+  const [preFileCnt, setPreFileCnt] = useState(0)
+
   const props: UploadProps = {
     name: 'file',
     multiple: true,
-    onRemove(file) {},
+    onRemove(file) {
+      updateUploadFilesProgress([])
+    },
+
     onChange(info) {
       const { status, uid } = info.file
+      const isRemoveFile = info.fileList.length < preFileCnt
 
       const uploadOver = info.fileList.every(file => file.status === 'done')
       if (uploadOver) {
+        if (isRemoveFile) return
         message.success('文件加载完成')
         setCanUploading(true)
       } else if (canUpload === true) {
@@ -130,6 +137,8 @@ export const UploadFile = () => {
       if (status === 'error') {
         message.error(`${info.file.name} file upload failed.`)
       }
+
+      setPreFileCnt(info.fileList.length)
     },
 
     itemRender(originNode, file, fileList, actions) {

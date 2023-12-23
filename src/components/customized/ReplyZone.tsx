@@ -48,10 +48,6 @@ export const ReplyZone: FC<ReplyZoneProps> = ({ path }) => {
 
   const { data, isLoading } = useQuery('reply', () => getReply(path))
 
-  useEffect(() => {
-    console.log(data)
-  })
-
   return (
     <submitContext.Provider value={{ submit: handleSubmit }}>
       <div className="text-normal-text dark:text-dark-text">

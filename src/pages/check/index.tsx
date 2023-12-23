@@ -87,7 +87,7 @@ export default function Check() {
   ]
   const queryClient = useQueryClient()
 
-  const { data, isLoading } = useQuery(['fileList'], () => getUploadList())
+  const { data, isLoading, refetch } = useQuery('fileList', () => getUploadList())
 
   const { mutate, reset } = useMutation(
     (value: { id: number; status: checkStatus }) => checkUploadList(value.id, value.status),
@@ -100,7 +100,11 @@ export default function Check() {
         message.error('审核失败' + e)
       },
       onSettled: (data, error, variables, context) => {
-        queryClient.invalidateQueries(['fileList'])
+        console.log('onesettled')
+        // queryClient.invalidateQueries({
+        //   queryKey: 'fileList',
+        // })
+        refetch()
       },
     }
   )

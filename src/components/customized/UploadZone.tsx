@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { Button } from './ui/Button'
 import { UploadFile } from './UploadFile'
+import Link from 'next/link'
 
 export const UploadZone = () => {
   const [uploadShow, setUploadShow] = useState(false)
@@ -14,7 +15,18 @@ export const UploadZone = () => {
       >
         {uploadShow ? '不用上传力' : '我要上传文件~'}
       </Button>
-      {uploadShow && <UploadFile />}
+      {uploadShow && (
+        <>
+          <div className="mt-4">
+            上传前请阅读我们的
+            <Link target="_blank" href="https://doc.aoikaze.org/blog/oneindex/upload_format`">
+              上传要求
+            </Link>
+            哦
+          </div>
+          <UploadFile />
+        </>
+      )}
     </>
   )
 }
