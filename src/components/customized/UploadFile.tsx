@@ -34,7 +34,7 @@ export const UploadFiles = () => {
   const { message } = App.useApp()
   const draggerRef = useRef<UploadRef<any>>(null)
 
-  function handleUpload() {
+  async function handleUpload() {
     const list = draggerRef.current?.fileList
     if (!list || !list.length) {
       message.error('还没有选择任何文件哦')
@@ -42,32 +42,56 @@ export const UploadFiles = () => {
       updateUploadFilesProgress(
         list.map(file => ({ size: file.size || 0, progress: 0, percent: 0, url: '', status: 'preparing' }))
       )
-      const handles = list.map(({ originFileObj }, idx) => {
-        if (originFileObj) {
-          return uploadFileByChunk(idx, originFileObj)
+
+      try {
+        for (let i = 0; i < list.length; i++) {
+          const originFileObj = list[i].originFileObj
+          if (originFileObj) {
+            await uploadFileByChunk(i, originFileObj)
+          }
         }
-      })
-      Promise.all(handles)
-        .then(async () => {
-          await uploadSuccess({
-            userName,
-            qqAccount,
-            path: curPath + prefixDir,
-            content,
-            createTime: Date().toString(),
-            fileList: list.map((file: any) => file.name),
-          })
-          message.success('上传成功')
-          localStorage.setItem(LOCAL_STORAGE_USER_INFO, JSON.stringify({ userName, qqAccount }))
+        await uploadSuccess({
+          userName,
+          qqAccount,
+          path: curPath + prefixDir,
+          content,
+          createTime: Date().toString(),
+          fileList: list.map((file: any) => file.name),
         })
-        .catch(err => {
-          message.error('上传失败')
-        })
+        message.success('上传成功')
+        localStorage.setItem(LOCAL_STORAGE_USER_INFO, JSON.stringify({ userName, qqAccount }))
+      } catch (err) {
+        message.error('上传失败')
+        return
+      }
+
+      // 弃置同时一起上传
+      //   const handles = list.map(async ({ originFileObj }, idx) => {
+      //     if (originFileObj) {
+      //       return await uploadFileByChunk(idx, originFileObj)
+      //     }
+      //   })
+      //   Promise.all(handles)
+      //     .then(async () => {
+      //       await uploadSuccess({
+      //         userName,
+      //         qqAccount,
+      //         path: curPath + prefixDir,
+      //         content,
+      //         createTime: Date().toString(),
+      //         fileList: list.map((file: any) => file.name),
+      //       })
+      //       message.success('上传成功')
+      //       localStorage.setItem(LOCAL_STORAGE_USER_INFO, JSON.stringify({ userName, qqAccount }))
+      //     })
+      //     .catch(err => {
+      //       message.error('上传失败')
+      //     })
     }
   }
 
   //生成文件切片
-  async function uploadFileByChunk(fileIdx: number, file: File, size = 300 * 1024 * 1024) {
+  async function uploadFileByChunk(fileIdx: number, file: File, size = 200 * 1024 * 1024) {
     const fileChunkList: any[] = []
     const fileSize = file.size
     let cur = 0
