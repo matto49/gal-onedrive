@@ -97,7 +97,11 @@ export default function Check() {
         message.success('审核成功')
       },
       onError(e) {
-        message.error('审核失败' + e)
+        if (e.response.status === 409) {
+          message.error('审核失败' + e)
+        } else {
+          message.error('审核失败' + e)
+        }
       },
       onSettled: (data, error, variables, context) => {
         console.log('onesettled')
