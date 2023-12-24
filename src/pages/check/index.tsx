@@ -96,7 +96,7 @@ export default function Check() {
         reset()
         message.success('审核成功')
       },
-      onError(e) {
+      onError(e: any) {
         if (e.response.status === 409) {
           message.error('审核失败' + e)
         } else {
