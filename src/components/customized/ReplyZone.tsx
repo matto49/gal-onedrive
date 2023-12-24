@@ -7,6 +7,7 @@ import { useMutation, useQuery, useQueryClient } from 'react-query'
 import Loading from '../Loading'
 import { App } from 'antd'
 import { createContext } from 'react'
+import { UploadZone } from './UploadZone'
 
 interface ISubmitContext {
   submit: (replyTo: string, reply: ReplyParams) => void
@@ -62,6 +63,7 @@ export const ReplyZone: FC<ReplyZoneProps> = ({ path }) => {
             {data?.list?.map(reply => (
               <ReplyItem key={reply.uniqueId} data={reply} />
             ))}
+            <UploadZone />
           </>
         )}
       </div>
