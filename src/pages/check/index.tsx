@@ -1,9 +1,10 @@
-import { Button, Space, Table, Tag, message } from 'antd'
+import { Button, Space, Table, Tag, message, Pagination } from 'antd'
 import { useMutation, useQuery, useQueryClient } from 'react-query'
 import { FileInfo, Status, UploadList, checkStatus, checkUploadList, getUploadList } from '../../utils/api/onedrive'
 import { ColumnsType } from 'antd/es/table'
 import dayjs from 'dayjs'
 import Link from 'next/link'
+import { useMemo, useState } from 'react'
 
 export default function Check() {
   const columns: ColumnsType<UploadList> = [
@@ -85,9 +86,10 @@ export default function Check() {
       ),
     },
   ]
-  const queryClient = useQueryClient()
 
-  const { data, isLoading, refetch } = useQuery('fileList', () => getUploadList())
+  const [page, setPage] = useState(1)
+
+  const { data, isLoading, refetch } = useQuery(['fileList', page], () => getUploadList(page))
 
   const { mutate, reset } = useMutation(
     (value: { id: number; status: checkStatus }) => checkUploadList(value.id, value.status),
@@ -118,7 +120,16 @@ export default function Check() {
     mutate({ id, status })
   }
 
-  // todo：分页
+  function handlePaginationChange(page: number, pageSize: number) {
+    setPage(page)
+  }
 
-  return <Table dataSource={data?.list || []} loading={isLoading} columns={columns} />
+  return (
+    <Table
+      dataSource={data?.list || []}
+      loading={isLoading}
+      pagination={{ onChange: handlePaginationChange, pageSize: 20, total: data?.total || 0 }}
+      columns={columns}
+    />
+  )
 }
