@@ -71,7 +71,7 @@ export default function Check() {
       key: 'action',
       render: (val, item) => (
         <Space size="middle">
-          <Button disabled={item.status !== Status.Pending} onClick={() => handleCheck(item, 'approved')} color="blue">
+          <Button onClick={() => handleCheck(item, 'approved')} color="blue">
             通过
           </Button>
           <Button
@@ -94,17 +94,16 @@ export default function Check() {
   const { mutate, reset } = useMutation(
     (value: { id: number; status: checkStatus }) => checkUploadList(value.id, value.status),
     {
-      onMutate() {
-        message.loading('提交审核中~')
-      },
       onSuccess(res) {
         reset()
-        message.destroy()
         message.success('审核成功')
       },
       onError(e: any) {
-        message.destroy()
-        message.error('审核失败' + e)
+        if (e.response.status === 409) {
+          message.error('审核失败' + e)
+        } else {
+          message.error('审核失败' + e)
+        }
       },
       onSettled: (data, error, variables, context) => {
         console.log('onesettled')
