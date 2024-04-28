@@ -259,7 +259,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       },
     })
 
-    if ('folder' in identityData) {
+    if (identityData.hasOwnProperty('folder')) {
       const { data: folderData } = await axios.get(`${requestUrl}${isRoot ? '' : ':'}/children`, {
         headers: { Authorization: `Bearer ${accessToken}` },
         params: {

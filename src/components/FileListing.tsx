@@ -197,7 +197,7 @@ const FileListing: FC<{ query?: ParsedUrlQuery }> = ({ query }) => {
   const isReachingEnd = isEmpty || (data && typeof data[data.length - 1]?.next === 'undefined')
   const onlyOnePage = data && typeof data[0].next === 'undefined'
 
-  if ('folder' in responses[0]) {
+  if (responses[0].hasOwnProperty('folder')) {
     // Expand list of API returns into flattened file data
     const folderChildren = [].concat(...responses.map(r => r.folder.value)) as OdFolderObject['value']
 
