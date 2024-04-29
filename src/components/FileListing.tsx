@@ -395,7 +395,7 @@ const FileListing: FC<{ query?: ParsedUrlQuery }> = ({ query }) => {
     )
   }
 
-  if ('file' in responses[0] && responses.length === 1) {
+  if (responses[0].hasOwnProperty('file') && responses.length === 1) {
     const file = responses[0].file as OdFileObject
     const previewType = getPreviewType(getExtension(file.name), { video: Boolean(file.video) })
 
