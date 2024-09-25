@@ -189,8 +189,6 @@ const FileListing: FC<{ query?: ParsedUrlQuery }> = ({ query }) => {
 
   const responses: any[] = data ? [].concat(...data) : []
 
-  console.log(responses)
-
   const isLoadingInitialData = !data && !error
   const isLoadingMore = isLoadingInitialData || (size > 0 && data && typeof data[size - 1] === 'undefined')
   const isEmpty = data?.[0]?.length === 0

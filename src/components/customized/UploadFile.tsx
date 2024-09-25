@@ -13,7 +13,6 @@ import { Input } from './ui/Input'
 import { LOCAL_STORAGE_USER_INFO, setElementWrapper } from '../../utils/customized'
 import { useRouter } from 'next/router'
 import { queryToPath } from '../FileListing'
-import { flushSync } from 'react-dom'
 import { RcFile } from 'antd/es/upload'
 
 interface UploadFileProgress {

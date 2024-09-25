@@ -48,6 +48,8 @@ export async function getAccessToken(): Promise<string> {
     return ''
   }
 
+  console.log('Fetch new access token with in storage refresh token')
+
   // Fetch new access token with in storage refresh token
   const body = new URLSearchParams()
   body.append('client_id', apiConfig.clientId)
@@ -158,7 +160,6 @@ export async function checkAuthRoute(
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   // If method is POST, then the API is called by the client to store acquired tokens
-  console.log('handle', req.method)
   if (req.method === 'POST') {
     const { obfuscatedAccessToken, accessTokenExpiry, obfuscatedRefreshToken } = req.body
     const accessToken = revealObfuscatedToken(obfuscatedAccessToken)
@@ -229,7 +230,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
   // Go for file raw download link, add CORS headers, and redirect to @microsoft.graph.downloadUrl
   // (kept here for backwards compatibility, and cache headers will be reverted to no-cache)
-  console.log('requestUrl', requestUrl)
   if (raw) {
     await runCorsMiddleware(req, res)
     res.setHeader('Cache-Control', 'no-cache')

@@ -4,7 +4,7 @@ import { FileInfo, Status, UploadList, checkStatus, checkUploadList, getUploadLi
 import { ColumnsType } from 'antd/es/table'
 import dayjs from 'dayjs'
 import Link from 'next/link'
-import { useMemo, useState } from 'react'
+import { useState } from 'react'
 
 export default function Check() {
   const columns: ColumnsType<UploadList> = [
