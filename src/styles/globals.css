@@ -28,3 +28,10 @@ pre[class*='language-'],
 code[class*='language-'] {
   @apply font-mono !important;
 }
+
+
+
+.loading-container .ant-modal-content {
+  padding: 6px 20px;
+  background-color: azure;
+}

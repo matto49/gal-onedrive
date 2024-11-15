@@ -15,12 +15,11 @@ const Loading = ({ visible, message }: LoadingProps) => {
       footer={null}
       closable={false}
       maskClosable={false}
-      rootClassName=" bg-transparent"
-      className="loading-container flex w-auto justify-center bg-transparent p-6"
+      className="loading-container top-0 flex w-auto justify-center bg-transparent p-6"
     >
       <div className="flex justify-center gap-4">
-        <div className="text-xl text-black">{message}</div>
-        <Spin size="large" className="h-8 w-8" />
+        <div className="text-black">{message}</div>
+        <Spin size="default" />
       </div>
     </Modal>
   )
