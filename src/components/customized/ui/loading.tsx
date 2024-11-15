@@ -26,7 +26,7 @@ const Loading = ({ visible, message }: LoadingProps) => {
   )
 }
 
-export const showLoading = (message?: string) => {
+export const showLoading = (message: string) => {
   // 如果已经存在loading则不重复创建
   if (loadingInstance) return
 

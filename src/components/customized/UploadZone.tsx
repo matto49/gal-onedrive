@@ -19,11 +19,11 @@ export const UploadZone = () => {
         <>
           <div className="mt-4">
             上传前请阅读我们的
-            <Link target="_blank" href="https://doc.aoikaze.org/blog/oneindex/archive_format">
+            <Link target="_blank" href="https://doc.aoikaze.org/blog/oneindex/archive_format" className="text-blue-500">
               压缩要求
             </Link>
             和
-            <Link target="_blank" href="https://doc.aoikaze.org/blog/oneindex/upload_format">
+            <Link target="_blank" href="https://doc.aoikaze.org/blog/oneindex/upload_format" className="text-blue-500">
               上传要求
             </Link>
             哦~
