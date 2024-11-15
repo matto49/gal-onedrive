@@ -6,6 +6,7 @@ import UserIcon from '../../static/customized/user.svg'
 import QQIcon from '../../static/customized/qq.svg'
 import { submitContext } from './ReplyZone'
 import { App } from 'antd'
+import { useToast } from './ui/message'
 
 interface ReplyBoxProps {
   handleCancel?: () => void
@@ -13,7 +14,7 @@ interface ReplyBoxProps {
 }
 
 export const ReplyBox: FC<ReplyBoxProps> = ({ replyTo = '', handleCancel }) => {
-  const { message } = App.useApp()
+  const toast = useToast()
   const onSubmit = useContext(submitContext).submit
   const [userName, setUserName] = useState('')
   const [qqAccount, setQQAccount] = useState('')
@@ -26,7 +27,10 @@ export const ReplyBox: FC<ReplyBoxProps> = ({ replyTo = '', handleCancel }) => {
   function handleSubmit() {
     const isQqNumberCheck = /^[1-9]{1}[0-9]{4,14}$/
     if (!isQqNumberCheck.test(qqAccount)) {
-      message.error('请输入正确的qq号！')
+      toast({
+        type: 'error',
+        message: '请输入正确的qq号！',
+      })
       return
     }
 

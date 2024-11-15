@@ -14,6 +14,7 @@ import { LOCAL_STORAGE_USER_INFO, setElementWrapper } from '../../utils/customiz
 import { useRouter } from 'next/router'
 import { queryToPath } from '../FileListing'
 import { RcFile } from 'antd/es/upload'
+import { useToast } from './ui/message'
 
 interface UploadFileProgress {
   // RcFile的uid
@@ -37,18 +38,25 @@ export const UploadFiles = () => {
   const [fileList, updateFileList] = useImmer<UploadFileProgress[]>([])
   const [isUploading, setIsUploading] = useState(false)
 
-  const { message } = App.useApp()
+  const toast = useToast()
   const draggerRef = useRef<UploadRef<any>>(null)
 
   async function handleUpload() {
     if (!fileList || !fileList.length) {
-      message.error('还没有选择任何文件哦')
+      toast({
+        type: 'error',
+        message: '还没有选择任何文件哦',
+      })
     } else {
       for (let i = 0; i < fileList.length; i++) {
         const originFileObj = fileList[i].file
         if (originFileObj) {
           const url = await initOnedriveUpload(i)
           await uploadFileByChunk(fileList[i].file, url)
+          toast({
+            type: 'success',
+            message: `${fileList[i].file.name}上传成功，请等待其它文件上传~`,
+          })
         }
       }
       await uploadSuccess({
@@ -59,7 +67,11 @@ export const UploadFiles = () => {
         createTime: Date().toString(),
         fileList: fileList.map(({ file }) => file.name),
       })
-      message.success('上传成功')
+
+      toast({
+        type: 'success',
+        message: '全部上传成功，需要联系管理员审核哦~',
+      })
       localStorage.setItem(LOCAL_STORAGE_USER_INFO, JSON.stringify({ userName, qqAccount }))
     }
   }
@@ -122,7 +134,11 @@ export const UploadFiles = () => {
       updateFileList(uploadFiles => {
         uploadFiles[fileIdx].status = 'error'
       })
-      message.error(`文件${file.name}上传失败`)
+
+      toast({
+        type: 'error',
+        message: '文件${file.name}上传失败',
+      })
       throw err
     }
   }
@@ -186,7 +202,10 @@ export const UploadFiles = () => {
           })
           abortController.abort()
           await axios.delete(fileInfo.url)
-          message.success('取消文件上传成功')
+          toast({
+            type: 'success',
+            message: '取消文件上传成功',
+          })
         }
       }
 

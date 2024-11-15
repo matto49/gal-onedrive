@@ -8,6 +8,8 @@ import Loading from '../Loading'
 import { App } from 'antd'
 import { createContext } from 'react'
 import { UploadZone } from './UploadZone'
+import { useToast } from './ui/message'
+import { closeLoading, showLoading } from './ui/loading'
 
 interface ISubmitContext {
   submit: (replyTo: string, reply: ReplyParams) => void
@@ -26,20 +28,29 @@ interface addParams {
 
 export const ReplyZone: FC<ReplyZoneProps> = ({ path }) => {
   const queryClient = useQueryClient()
-  const { message } = App.useApp()
+  const toast = useToast()
 
   const { mutate, reset } = useMutation((values: addParams) => addReply(path, values.replyTo, values.reply), {
     onSuccess(res) {
       reset()
       if (res === 'createSuccess') {
-        message.success('评论成功')
+        toast({
+          type: 'success',
+          message: '评论成功',
+        })
         queryClient.invalidateQueries('reply')
       } else {
-        message.error('评论失败')
+        toast({
+          type: 'error',
+          message: '评论失败',
+        })
       }
     },
     onError() {
-      message.error('评论失败')
+      toast({
+        type: 'error',
+        message: '评论失败',
+      })
     },
   })
 

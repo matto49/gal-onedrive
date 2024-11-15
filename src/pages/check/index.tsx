@@ -5,6 +5,8 @@ import { ColumnsType } from 'antd/es/table'
 import dayjs from 'dayjs'
 import Link from 'next/link'
 import { useState } from 'react'
+import { useToast } from '../../components/customized/ui/message'
+import { closeLoading, showLoading } from '../../components/customized/ui/loading'
 
 export default function Check() {
   const columns: ColumnsType<UploadList> = [
@@ -87,6 +89,8 @@ export default function Check() {
     },
   ]
 
+  const toast = useToast()
+
   const [page, setPage] = useState(1)
 
   const { data, isLoading, refetch } = useQuery(['fileList', page], () => getUploadList(page))
@@ -95,16 +99,16 @@ export default function Check() {
     (value: { id: number; status: checkStatus }) => checkUploadList(value.id, value.status),
     {
       onMutate() {
-        message.loading('提交审核中~')
+        showLoading('提交审核中~')
       },
       onSuccess(res) {
         reset()
-        message.destroy()
-        message.success('审核成功')
+        closeLoading()
+        toast({ message: '审核成功', type: 'success' })
       },
       onError(e: any) {
-        message.destroy()
-        message.error('审核失败' + e)
+        closeLoading()
+        toast({ message: '审核失败' + e, type: 'error' })
       },
       onSettled: (data, error, variables, context) => {
         console.log('onesettled')

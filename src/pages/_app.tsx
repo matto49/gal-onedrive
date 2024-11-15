@@ -67,6 +67,7 @@ import type { AppProps } from 'next/app'
 import NextNProgress from 'nextjs-progressbar'
 import { appWithTranslation } from 'next-i18next'
 import antdTheme from '../themes/antdTheme.config'
+import { ToastProvider } from '../components/customized/ui/message'
 
 // import all brand icons with tree-shaking so all icons can be referenced in the app
 const iconList = Object.keys(Icons)
@@ -134,13 +135,15 @@ function MyApp({ Component, pageProps }: AppProps) {
     },
   })
   return (
-    <ConfigProvider theme={antdTheme}>
-      <QueryClientProvider client={queryClient}>
-        <NextNProgress height={1} color="rgb(156, 163, 175, 0.9)" options={{ showSpinner: false }} />
-        <Analytics />
-        <Component {...pageProps} />
-      </QueryClientProvider>
-    </ConfigProvider>
+    <ToastProvider>
+      <ConfigProvider theme={antdTheme}>
+        <QueryClientProvider client={queryClient}>
+          <NextNProgress height={1} color="rgb(156, 163, 175, 0.9)" options={{ showSpinner: false }} />
+          <Analytics />
+          <Component {...pageProps} />
+        </QueryClientProvider>
+      </ConfigProvider>
+    </ToastProvider>
   )
 }
 export default appWithTranslation(MyApp)
