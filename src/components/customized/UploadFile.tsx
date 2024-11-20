@@ -1,4 +1,4 @@
-import { App, UploadProps, Upload, Progress, UploadFile } from 'antd'
+import { App, UploadProps, Upload, Progress, UploadFile, Switch } from 'antd'
 import { UploadRef } from 'antd/es/upload/Upload'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { Button } from './ui/Button'
@@ -36,6 +36,8 @@ export const UploadFiles = () => {
 
   // 用于取消一个或多个 Web 请求
   const [abortControllers, setAbortControllers] = useImmer<Record<string, AbortController>>({})
+
+  const [isDirectoryUpload, setIsDirectoryUpload] = useState(false)
 
   // 文件上传信息
   const [fileList, updateFileList] = useImmer<UploadFileProgress[]>([])
@@ -331,8 +333,12 @@ export const UploadFiles = () => {
   }, [userName, qqAccount, content])
 
   return (
-    <div className="mt-10">
-      <Dragger {...props} ref={draggerRef}>
+    <div>
+      <div className="my-3 flex items-center gap-4">
+        <span>按文件夹上传</span>
+        <Switch onChange={() => setIsDirectoryUpload(pre => !pre)} />
+      </div>
+      <Dragger {...props} ref={draggerRef} directory={isDirectoryUpload}>
         <p className="ant-upload-drag-icon flex justify-center">
           <Image
             alt="upload"
