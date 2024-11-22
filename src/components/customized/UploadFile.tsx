@@ -38,6 +38,7 @@ export const UploadFiles = () => {
   const [abortControllers, setAbortControllers] = useImmer<Record<string, AbortController>>({})
 
   const [isDirectoryUpload, setIsDirectoryUpload] = useState(false)
+  const [uploadCurrentFileIdx, setUploadCurrentFileIdx] = useState(0)
 
   // 文件上传信息
   const [fileList, updateFileList] = useImmer<UploadFileProgress[]>([])
@@ -66,6 +67,18 @@ export const UploadFiles = () => {
     if (draggerRef.current) draggerRef.current.fileList = []
   }
 
+  // 自动更新抓取
+  useEffect(() => {
+    if (isUploading && !fileList[uploadCurrentFileIdx].url) {
+      const originFileObj = fileList[uploadCurrentFileIdx].file
+      if (originFileObj) {
+        initOnedriveUpload(uploadCurrentFileIdx).then(url => {
+          uploadFileByChunk(originFileObj, url)
+        })
+      }
+    }
+  }, [uploadCurrentFileIdx, isUploading])
+
   async function handleUpload() {
     try {
       updateFileList(fileList => fileList.filter(item => item.status !== 'done'))
@@ -76,13 +89,7 @@ export const UploadFiles = () => {
         })
       } else {
         setIsUploading(true)
-        for (let i = 0; i < fileList.length; i++) {
-          const originFileObj = fileList[i].file
-          if (originFileObj) {
-            const url = await initOnedriveUpload(i)
-            await uploadFileByChunk(fileList[i].file, url)
-          }
-        }
+        setUploadCurrentFileIdx(0)
       }
     } catch (err) {
       if (err && (err as any).message === 'canceled') {
@@ -99,22 +106,34 @@ export const UploadFiles = () => {
   async function initOnedriveUpload(fileIdx: number): Promise<string> {
     const fileInfo = fileList[fileIdx]
 
-    const uploadUri = await createUploadSession(`${curPath + prefixDir}/${fileInfo.file.name}`, userName)
+    try {
+      updateFileList(uploadFiles => {
+        uploadFiles[fileIdx].status = 'uploading'
+      })
+      const uploadUri = await createUploadSession(`${curPath + prefixDir}/${fileInfo.file.name}`, userName)
 
-    // 设置url供取消上传用
-    updateFileList(uploadFiles => {
-      uploadFiles[fileIdx].url = uploadUri
-    })
-    return uploadUri
+      // 设置url供取消上传用
+      updateFileList(uploadFiles => {
+        uploadFiles[fileIdx].url = uploadUri
+      })
+      return uploadUri
+    } catch (err) {
+      updateFileList(uploadFiles => {
+        uploadFiles[fileIdx].status = 'error'
+      })
+      throw err
+    }
   }
 
-  // 上传文件
-  // 传url用于解决useImmer中的数据统一更新问题
+  // useImmer的fileList更新后，检查是否所有文件都上传完成
   useEffect(() => {
     if (fileList.length && fileList.every(item => item.status === 'done')) {
       uploadFinCallback()
     }
   }, [fileList])
+
+  // 上传文件
+  // 传url用于解决useImmer中的数据统一更新问题
   async function uploadFileByChunk(
     file: RcFile,
     url = '',
@@ -123,6 +142,9 @@ export const UploadFiles = () => {
     chunkSize = 30 * 1024 * 1024 // 使用10MB的块大小
   ) {
     const fileIdx = fileList.findIndex(item => item.uid === file.uid)
+    updateFileList(uploadFiles => {
+      uploadFiles[fileIdx].status = 'uploading'
+    })
 
     if (!signal) {
       const controller = new AbortController()
@@ -133,10 +155,6 @@ export const UploadFiles = () => {
     }
 
     const fileSize = file.size
-
-    updateFileList(uploadFiles => {
-      uploadFiles[fileIdx].status = 'uploading'
-    })
 
     let cur = start
     while (cur < fileSize) {
@@ -181,6 +199,7 @@ export const UploadFiles = () => {
     updateFileList(uploadFiles => {
       uploadFiles[fileIdx].status = 'done'
     })
+    setUploadCurrentFileIdx(pre => pre + 1)
     toast({
       type: 'success',
       message: `${file.name}上传成功，请等待其它文件上传~`,
@@ -283,12 +302,16 @@ export const UploadFiles = () => {
           onClick: handleRestoreUpload,
         },
       }
-      const handleButton = handleButtons[fileInfo.status]
+
+      // 如果上传失败或者暂停，则显示恢复上传按钮
+      // 然后是上传中，则显示暂停上传按钮
+      const status = fileInfo.status === 'error' ? 'stopped' : fileInfo.status
+      const handleButton = handleButtons[status]
 
       return (
         <div className="mt-3 flex items-center gap-5 dark:text-gray-400">
           <span>{file.name}</span>
-          {fileInfo.status !== 'uploading' && (
+          {fileInfo.status === 'preparing' && (
             <Button onClick={actions.remove}>
               <RubbishIcon className="h-4 w-4 cursor-pointer hover:text-primary" />
             </Button>
@@ -301,7 +324,8 @@ export const UploadFiles = () => {
               <div className="text-sm">
                 {handleSize(fileInfo.progress)}/{handleSize(fileInfo.size)}
               </div>
-              {handleButton && <Button onClick={handleButton.onClick}>{handleButton.text}</Button>}
+              { }
+              {handleButton && <Button variant='plain' className='border-primary border-solid border-2 dark' onClick={handleButton.onClick}>{handleButton.text}</Button>}
             </div>
           )}
         </div>
@@ -381,7 +405,7 @@ export const UploadFiles = () => {
             placeholder="为本次上传做一点见要说明吧(不填默认是昵称-日期的形式)"
             value={content}
             onChange={setElementWrapper(setContent)}
-            muti
+            multiple
           />
         </div>
       </div>

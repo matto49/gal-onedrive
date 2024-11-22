@@ -78,7 +78,6 @@ export const ReplyBox: FC<ReplyBoxProps> = ({ replyTo = '', handleCancel }) => {
       <div className="mt-4 flex justify-end gap-8">
         {replyTo !== '' && (
           <Button
-            bg="transparent"
             className="border-2 border-red-400 text-red-400"
             type="submit"
             onClick={handleCancel}

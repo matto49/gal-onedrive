@@ -4,17 +4,19 @@ import { motion } from 'framer-motion'
 import type { FC } from 'react'
 
 interface ButtonProps {
-  bg?: string
+  variant?: 'primary' | 'plain'
 }
 
-type BButtonProps = ButtonProps & HTMLMotionProps<'button'>
+type BButtonProps = HTMLMotionProps<'button'> & ButtonProps
 
 export const Button: FC<BButtonProps> = props => {
-  const { className, bg = 'primary', ...rest } = props
+  const { className, variant = 'primary', ...rest } = props
   return (
     <motion.button
       className={clsx(
-        `hover:bg-primary-dark rounded-2xl bg-${bg} px-4 py-2 text-sm font-medium text-white disabled:bg-gray-500`,
+        `hover:bg-primary-dark rounded-2xl px-4 py-2 text-sm font-medium  disabled:bg-gray-500`,
+        variant === 'primary' && 'bg-primary text-white',
+        variant === 'plain' && 'bg-transparent text-primary dark:text-white border-primary border-solid border-2',
         className
       )}
       whileTap={{
