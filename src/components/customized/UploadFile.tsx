@@ -69,7 +69,8 @@ export const UploadFiles = () => {
 
   // 自动更新抓取
   useEffect(() => {
-    if (isUploading && !fileList[uploadCurrentFileIdx].url) {
+    // 如果正在上传，并且当前文件没有url，则需要获取url
+    if (isUploading && !fileList[uploadCurrentFileIdx]?.url) {
       const originFileObj = fileList[uploadCurrentFileIdx].file
       if (originFileObj) {
         initOnedriveUpload(uploadCurrentFileIdx).then(url => {
@@ -199,7 +200,9 @@ export const UploadFiles = () => {
     updateFileList(uploadFiles => {
       uploadFiles[fileIdx].status = 'done'
     })
-    setUploadCurrentFileIdx(pre => pre + 1)
+    if (fileList.length > uploadCurrentFileIdx + 1) {
+      setUploadCurrentFileIdx(pre => pre + 1)
+    }
     toast({
       type: 'success',
       message: `${file.name}上传成功，请等待其它文件上传~`,
