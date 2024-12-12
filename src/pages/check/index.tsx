@@ -111,7 +111,7 @@ export default function Check() {
         toast({ message: '审核失败' + e, type: 'error' })
       },
       onSettled: (data, error, variables, context) => {
-        console.log('onesettled')
+
         // queryClient.invalidateQueries({
         //   queryKey: 'fileList',
         // })

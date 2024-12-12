@@ -9,7 +9,6 @@ import { App } from 'antd'
 import { createContext } from 'react'
 import { UploadZone } from './UploadZone'
 import { useToast } from './ui/message'
-import { closeLoading, showLoading } from './ui/loading'
 
 interface ISubmitContext {
   submit: (replyTo: string, reply: ReplyParams) => void

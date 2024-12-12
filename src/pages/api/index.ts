@@ -38,17 +38,13 @@ export async function getAccessToken(): Promise<string> {
 
   // Return in storage access token if it is still valid
   if (typeof accessToken === 'string') {
-    console.log('Fetch access token from storage.')
     return accessToken
   }
 
   // Return empty string if no refresh token is stored, which requires the application to be re-authenticated
   if (typeof refreshToken !== 'string') {
-    console.log('No refresh token, return empty access token.')
     return ''
   }
-
-  console.log('Fetch new access token with in storage refresh token')
 
   // Fetch new access token with in storage refresh token
   const body = new URLSearchParams()
@@ -136,7 +132,6 @@ export async function checkAuthRoute(
 
     // Handle request and check for header 'od-protected-token'
     const odProtectedToken = await axios.get(token.data['@microsoft.graph.downloadUrl'])
-    // console.log(odTokenHeader, odProtectedToken.data.trim())
 
     if (
       !compareHashedToken({
@@ -161,15 +156,19 @@ export async function checkAuthRoute(
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   // If method is POST, then the API is called by the client to store acquired tokens
   if (req.method === 'POST') {
+    // 从请求体中获取混淆后的访问令牌、过期时间和刷新令牌
     const { obfuscatedAccessToken, accessTokenExpiry, obfuscatedRefreshToken } = req.body
+    // 解混淆获取真实的访问令牌和刷新令牌
     const accessToken = revealObfuscatedToken(obfuscatedAccessToken)
     const refreshToken = revealObfuscatedToken(obfuscatedRefreshToken)
 
+    // 验证令牌格式是否正确
     if (typeof accessToken !== 'string' || typeof refreshToken !== 'string') {
       res.status(400).send('Invalid request body')
       return
     }
 
+    // 将令牌存储到服务器
     await storeOdAuthTokens({ accessToken, accessTokenExpiry, refreshToken })
     res.status(200).send('OK')
     return

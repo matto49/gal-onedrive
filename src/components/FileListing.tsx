@@ -36,11 +36,9 @@ import URLPreview from './previews/URLPreview'
 import ImagePreview from './previews/ImagePreview'
 import DefaultPreview from './previews/DefaultPreview'
 import { PreviewContainer } from './previews/Containers'
-
 import FolderListLayout from './FolderListLayout'
 import FolderGridLayout from './FolderGridLayout'
 import { ReplyZone } from './customized/ReplyZone'
-import { UploadZone } from './customized/UploadZone'
 
 // Disabling SSR for some previews
 const EPUBPreview = dynamic(() => import('./previews/EPUBPreview'), {
@@ -164,7 +162,15 @@ const FileListing: FC<{ query?: ParsedUrlQuery }> = ({ query }) => {
 
   const path = queryToPath(query)
 
-  const { data, error, size, setSize } = useProtectedSWRInfinite(path)
+  const { data: wrappedData, error, size, setSize } = useProtectedSWRInfinite(path)
+
+
+  const data = wrappedData?.map(item => item.data)
+
+
+
+
+
 
   if (error) {
     // If error includes 403 which means the user has not completed initial setup, redirect to OAuth page
@@ -195,9 +201,13 @@ const FileListing: FC<{ query?: ParsedUrlQuery }> = ({ query }) => {
   const isReachingEnd = isEmpty || (data && typeof data[data.length - 1]?.next === 'undefined')
   const onlyOnePage = data && typeof data[0].next === 'undefined'
 
+
+
   if (responses[0].hasOwnProperty('folder')) {
     // Expand list of API returns into flattened file data
     const folderChildren = [].concat(...responses.map(r => r.folder.value)) as OdFolderObject['value']
+
+
 
     // Find README.md file to render
     const readmeFile = folderChildren.find(c => c.name.toLowerCase() === 'readme.md')
@@ -359,9 +369,8 @@ const FileListing: FC<{ query?: ParsedUrlQuery }> = ({ query }) => {
                   : t('of {{count}} file(s) -', { count: folderChildren.length, context: 'loaded' }))}
             </div>
             <button
-              className={`flex w-full items-center justify-center space-x-2 p-3 disabled:cursor-not-allowed ${
-                isLoadingMore || isReachingEnd ? 'opacity-60' : 'hover:bg-gray-100 dark:hover:bg-gray-850'
-              }`}
+              className={`flex w-full items-center justify-center space-x-2 p-3 disabled:cursor-not-allowed ${isLoadingMore || isReachingEnd ? 'opacity-60' : 'hover:bg-gray-100 dark:hover:bg-gray-850'
+                }`}
               onClick={() => setSize(size + 1)}
               disabled={isLoadingMore || isReachingEnd}
             >
@@ -394,7 +403,7 @@ const FileListing: FC<{ query?: ParsedUrlQuery }> = ({ query }) => {
   }
 
   if (responses[0].hasOwnProperty('file') && responses.length === 1) {
-    const file = responses[0].file as OdFileObject
+    const file = responses[0] as OdFileObject
     const previewType = getPreviewType(getExtension(file.name), { video: Boolean(file.video) })
 
     if (previewType) {

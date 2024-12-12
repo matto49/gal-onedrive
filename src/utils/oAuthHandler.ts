@@ -2,6 +2,7 @@ import axios from 'axios'
 import CryptoJS from 'crypto-js'
 
 import apiConfig from '../../config/api.config'
+import { onedriveRequest } from './api'
 
 // Just a disguise to obfuscate required tokens (including but not limited to client secret,
 // access tokens, and refresh tokens), used along with the following two functions
@@ -95,8 +96,8 @@ export async function getAuthPersonInfo(accessToken: string) {
 }
 
 export async function sendTokenToServer(accessToken: string, refreshToken: string, expiryTime: string) {
-  return await axios.post(
-    '/api',
+  return await onedriveRequest.post(
+    '/saveToken',
     {
       obfuscatedAccessToken: obfuscateToken(accessToken),
       accessTokenExpiry: parseInt(expiryTime),
