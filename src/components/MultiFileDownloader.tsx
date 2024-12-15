@@ -5,6 +5,7 @@ import { useTranslation } from 'next-i18next'
 
 import { fetcher } from '../utils/fetchWithSWR'
 import { getStoredToken } from '../utils/protectedRouteHandler'
+import { onedriveRequest } from '../utils/api'
 
 /**
  * A loading toast component with file download progress support
@@ -180,35 +181,49 @@ interface TraverseItem {
  * Due to top-down, Folder items are ALWAYS in front of its children items.
  * Error key in the item will contain the error when there is a handleable error.
  */
+// 这是一个异步生成器函数,用于遍历文件夹内容
 export async function* traverseFolder(path: string): AsyncGenerator<TraverseItem, void, undefined> {
+  // 获取加密的token用于认证
   const hashedToken = getStoredToken(path)
 
-  // Generate the task passed to Promise.race to request a folder
+  // 生成一个请求任务,用于获取文件夹内容
+  // i: 任务索引
+  // path: 文件夹路径
+  // next: 分页标记
   const genTask = async (i: number, path: string, next?: string) => {
     return {
       i,
       path,
-      data: await fetcher([
-        next ? `/api/?path=${path}&next=${next}` : `/api?path=${path}`,
-        hashedToken ?? undefined,
-      ]).catch(error => ({ i, path, error })),
+      // 发起请求获取文件夹数据
+      data: await onedriveRequest.get('',
+        {
+          headers: {
+            ...(hashedToken ? { 'od-protected-token': hashedToken } : {})
+          },
+          params: {
+            path,
+            ...(next ? { next } : {}),
+          },
+        }
+      ).catch(error => ({ i, path, error })),
     }
   }
 
-  // Pool containing Promises of folder requests
+  // 任务池,存放所有待处理的请求Promise
   let pool = [genTask(0, path)]
 
-  // Map as item buffer for folders with pagination
+  // 缓存带分页的文件夹内容
   const buf: { [k: string]: TraverseItem[] } = {}
 
-  // filter(() => true) removes gaps in the array
+  // 只要任务池不为空就继续处理
   while (pool.filter(() => true).length > 0) {
     let info: { i: number; path: string; data: any }
     try {
+      // 等待最快完成的任务
       info = await Promise.race(pool.filter(() => true))
     } catch (error: any) {
       const { i, path, error: innerError } = error
-      // 4xx errors are identified as handleable errors
+      // 处理4xx错误
       if (Math.floor(innerError.status / 100) === 4) {
         delete pool[i]
         yield {
@@ -223,36 +238,43 @@ export async function* traverseFolder(path: string): AsyncGenerator<TraverseItem
       }
     }
 
-    const { i, path, data } = info
+    console.log('info', info)
+    const { i, path, data: wrappedData } = info
+    const data = wrappedData.data
+    // 验证返回的是文件夹数据
     if (!data || !data.folder) {
       throw new Error('Path is not folder')
     }
     delete pool[i]
 
+    // 处理文件夹内容,生成TraverseItem数组
     const items = data.folder.value.map((c: any) => {
       const p = `${path === '/' ? '' : path}/${encodeURIComponent(c.name)}`
       return { path: p, meta: c, isFolder: Boolean(c.folder) }
     }) as TraverseItem[]
 
     if (data.next) {
+      // 如果有下一页,先缓存当前页内容
       buf[path] = (buf[path] ?? []).concat(items)
 
-      // Append next page task to the pool at the end
+      // 添加下一页的请求任务
       const i = pool.length
       pool[i] = genTask(i, path, data.next)
     } else {
+      // 没有下一页,合并所有分页内容
       const allItems = (buf[path] ?? []).concat(items)
       if (buf[path]) {
         delete buf[path]
       }
 
+      // 对文件夹类型的项目,添加遍历其内容的任务
       allItems
         .filter(item => item.isFolder)
         .forEach(item => {
-          // Append new folder tasks to the pool at the end
           const i = pool.length
           pool[i] = genTask(i, item.path)
         })
+      // 返回处理好的内容
       yield* allItems
     }
   }
