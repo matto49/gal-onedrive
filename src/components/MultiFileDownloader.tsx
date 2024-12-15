@@ -238,7 +238,6 @@ export async function* traverseFolder(path: string): AsyncGenerator<TraverseItem
       }
     }
 
-    console.log('info', info)
     const { i, path, data: wrappedData } = info
     const data = wrappedData.data
     // 验证返回的是文件夹数据
