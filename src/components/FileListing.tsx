@@ -163,14 +163,7 @@ const FileListing: FC<{ query?: ParsedUrlQuery }> = ({ query }) => {
   const path = queryToPath(query)
 
   const { data: wrappedData, error, size, setSize } = useProtectedSWRInfinite(path)
-
-
   const data = wrappedData?.map(item => item.data)
-
-
-
-
-
 
   if (error) {
     // If error includes 403 which means the user has not completed initial setup, redirect to OAuth page

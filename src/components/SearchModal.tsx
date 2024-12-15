@@ -14,8 +14,8 @@ import type { OdDriveItem, OdSearchResult } from '../types'
 import { LoadingIcon } from './Loading'
 
 import { getFileIcon } from '../utils/getFileIcon'
-import { fetcher } from '../utils/fetchWithSWR'
 import siteConfig from '../../config/site.config'
+import { fetchWithSWR } from '../utils/fetchWithSWR'
 
 /**
  * Extract the searched item's path in field 'parentReference' and convert it to the
@@ -32,9 +32,9 @@ function mapAbsolutePath(path: string): string {
   // replace URL sensitive characters such as the # with %23
   return absolutePath.length > 1 // solve https://github.com/spencerwooo/onedrive-vercel-index/issues/539
     ? absolutePath[1]
-        .split('/')
-        .map(p => encodeURIComponent(decodeURIComponent(p)))
-        .join('/')
+      .split('/')
+      .map(p => encodeURIComponent(decodeURIComponent(p)))
+      .join('/')
     : ''
 }
 
@@ -54,9 +54,9 @@ function useDriveItemSearch() {
       item['path'] =
         'path' in item.parentReference
           ? // OneDrive International have the path returned in the parentReference field
-            `${mapAbsolutePath(item.parentReference.path)}/${encodeURIComponent(item.name)}`
+          `${mapAbsolutePath(item.parentReference.path)}/${encodeURIComponent(item.name)}`
           : // OneDrive for Business/Education does not, so we need extra steps here
-            ''
+          ''
     })
 
     return data
@@ -93,17 +93,15 @@ function SearchResultItemTemplate({
     <Link
       href={driveItemPath}
       passHref
-      className={`flex items-center space-x-4 border-b border-gray-400/30 px-4 py-1.5 hover:bg-gray-50 dark:hover:bg-gray-850 ${
-        disabled ? 'pointer-events-none cursor-not-allowed' : 'cursor-pointer'
-      }`}
+      className={`flex items-center space-x-4 border-b border-gray-400/30 px-4 py-1.5 hover:bg-gray-50 dark:hover:bg-gray-850 ${disabled ? 'pointer-events-none cursor-not-allowed' : 'cursor-pointer'
+        }`}
     >
       <FontAwesomeIcon icon={driveItem.file ? getFileIcon(driveItem.name) : ['far', 'folder']} />
       <div>
         <div className="text-sm font-medium leading-8">{driveItem.name}</div>
         <div
-          className={`overflow-hidden truncate font-mono text-xs opacity-60 ${
-            itemDescription === 'Loading ...' && 'animate-pulse'
-          }`}
+          className={`overflow-hidden truncate font-mono text-xs opacity-60 ${itemDescription === 'Loading ...' && 'animate-pulse'
+            }`}
         >
           {itemDescription}
         </div>
@@ -113,11 +111,11 @@ function SearchResultItemTemplate({
 }
 
 function SearchResultItemLoadRemote({ result }: { result: OdSearchResult[number] }) {
-  const { data, error }: SWRResponse<OdDriveItem, { status: number; message: any }> = useSWR(
-    [`/api/item/?id=${result.id}`],
-    fetcher
+  const { data: wrappedData, error }: SWRResponse<{ data: OdDriveItem }, { status: number; message: any }> = useSWR(
+    [`/items?id=${result.id}`],
+    fetchWithSWR
   )
-
+  const data = wrappedData?.data
   const { t } = useTranslation()
 
   if (error) {

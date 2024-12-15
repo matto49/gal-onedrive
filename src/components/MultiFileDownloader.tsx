@@ -3,7 +3,6 @@ import toast from 'react-hot-toast'
 import JSZip from 'jszip'
 import { useTranslation } from 'next-i18next'
 
-import { fetcher } from '../utils/fetchWithSWR'
 import { getStoredToken } from '../utils/protectedRouteHandler'
 import { onedriveRequest } from '../utils/api'
 
