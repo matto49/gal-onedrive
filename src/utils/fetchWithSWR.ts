@@ -1,10 +1,9 @@
-import axios from 'axios'
 import useSWRInfinite from 'swr/infinite'
 
 import type { OdAPIResponse } from '../types'
 
-import { getStoredToken } from './protectedRouteHandler'
 import { onedriveRequest } from './api'
+import { getStoredToken } from './protectedRouteHandler'
 
 // Common axios fetch function for use with useSWR
 export async function fetchWithSWR([url, token]: [url: string, token?: string]): Promise<any> {
@@ -32,11 +31,11 @@ export function useProtectedSWRInfinite(path: string = '') {
    */
 
   function getNextKey(pageIndex: number, previousPageData: OdAPIResponse): (string | null)[] | null {
+    if (previousPageData) previousPageData = previousPageData.data
     // Reached the end of the collection
     if (previousPageData && !previousPageData.folder) return null
     // First page with no prevPageData
     if (pageIndex === 0) return [`/?path=${path}`, hashedToken]
-
     // Add nextPage token to API endpoint
     return [`/?path=${path}&next=${previousPageData.next}`, hashedToken]
   }
