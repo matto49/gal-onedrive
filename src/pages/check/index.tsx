@@ -1,12 +1,12 @@
-import { Button, Space, Table, Tag } from 'antd'
+import { Button, Space, Table, Tag, message, Pagination } from 'antd'
+import { useMutation, useQuery, useQueryClient } from 'react-query'
+import { FileInfo, Status, UploadList, checkStatus, checkUploadList, getUploadList } from '../../utils/api/onedrive'
 import { ColumnsType } from 'antd/es/table'
 import dayjs from 'dayjs'
 import Link from 'next/link'
 import { useState } from 'react'
-import { useMutation, useQuery } from 'react-query'
-import { closeLoading, showLoading } from '../../components/customized/ui/loading'
 import { useToast } from '../../components/customized/ui/message'
-import { FileInfo, Status, UploadList, checkStatus, checkUploadList, getUploadList } from '../../utils/api/onedrive'
+import { closeLoading, showLoading } from '../../components/customized/ui/loading'
 
 export default function Check() {
   const columns: ColumnsType<UploadList> = [
@@ -73,7 +73,7 @@ export default function Check() {
       key: 'action',
       render: (val, item) => (
         <Space size="middle">
-          <Button disabled={item.status !== Status.Pending} onClick={() => handleCheck(item, 'approved')} color="default">
+          <Button disabled={item.status !== Status.Pending} onClick={() => handleCheck(item, 'approved')} color="blue">
             通过
           </Button>
           <Button
