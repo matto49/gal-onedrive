@@ -31,7 +31,7 @@ export function useProtectedSWRInfinite(path: string = '') {
    */
 
   function getNextKey(pageIndex: number, previousPageData: OdAPIResponse): (string | null)[] | null {
-    if (previousPageData) previousPageData = previousPageData.data
+    if (previousPageData) previousPageData = previousPageData
     // Reached the end of the collection
     if (previousPageData && !previousPageData.folder) return null
     // First page with no prevPageData

@@ -95,13 +95,11 @@ export async function getAuthPersonInfo(accessToken: string) {
   })
 }
 
-export async function sendTokenToServer(accessToken: string, refreshToken: string, expiryTime: string) {
+export async function sendTokenToServer(authToken: string) {
   return await onedriveRequest.post(
     '/saveToken',
     {
-      obfuscatedAccessToken: obfuscateToken(accessToken),
-      accessTokenExpiry: parseInt(expiryTime),
-      obfuscatedRefreshToken: obfuscateToken(refreshToken),
+      authToken
     },
     {
       headers: {
