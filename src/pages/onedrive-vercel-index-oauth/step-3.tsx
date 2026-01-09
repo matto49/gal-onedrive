@@ -45,7 +45,27 @@ export default function OAuthStep3({ accessToken, expiryTime, refreshToken, erro
     )
 
     // verify identity of the authenticated user with the Microsoft Graph API
-    await sendTokenToServer(accessToken)
+    const { data, status } = await getAuthPersonInfo(accessToken)
+    if (status !== 200) {
+      setButtonError(true)
+      setButtonContent(
+        <div>
+          <span>{t('Error validating identify, restart')}</span> <FontAwesomeIcon icon="exclamation-circle" />
+        </div>
+      )
+      return
+    }
+    if (data.userPrincipalName !== siteConfig.userPrincipalName) {
+      setButtonError(true)
+      setButtonContent(
+        <div>
+          <span>{t('Do not pretend to be the site owner')}</span> <FontAwesomeIcon icon="exclamation-circle" />
+        </div>
+      )
+      return
+    }
+
+    await sendTokenToServer(accessToken, refreshToken, expiryTime)
       .then(() => {
         setButtonError(false)
         setButtonContent(

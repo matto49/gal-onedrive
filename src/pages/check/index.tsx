@@ -73,7 +73,7 @@ export default function Check() {
       key: 'action',
       render: (val, item) => (
         <Space size="middle">
-          <Button disabled={item.status !== Status.Pending} onClick={() => handleCheck(item, 'approved')}>
+          <Button disabled={item.status !== Status.Pending} onClick={() => handleCheck(item, 'approved')} color="blue">
             通过
           </Button>
           <Button

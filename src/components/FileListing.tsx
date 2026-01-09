@@ -30,6 +30,7 @@ import MarkdownPreview from './previews/MarkdownPreview'
 import CodePreview from './previews/CodePreview'
 import OfficePreview from './previews/OfficePreview'
 import AudioPreview from './previews/AudioPreview'
+import VideoPreview from './previews/VideoPreview'
 import PDFPreview from './previews/PDFPreview'
 import URLPreview from './previews/URLPreview'
 import ImagePreview from './previews/ImagePreview'
@@ -41,11 +42,6 @@ import { ReplyZone } from './customized/ReplyZone'
 
 // Disabling SSR for some previews
 const EPUBPreview = dynamic(() => import('./previews/EPUBPreview'), {
-  ssr: false,
-})
-
-// Disable SSR for VideoPreview to avoid Plyr accessing document on server
-const VideoPreview = dynamic(() => import('./previews/VideoPreview'), {
   ssr: false,
 })
 
